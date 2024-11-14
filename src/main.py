@@ -1,5 +1,4 @@
-from streamlit import streamlit as st
-
+import streamlit as st
 
 from common.s3 import S3HttpConnector
 from models.base import S3ConnectionMeta
@@ -57,7 +56,7 @@ with right:
         st.session_state.s3.connect()
         with st.form("list_dir"):
 
-            prefix = st.text_input("S3 Directory", value="/")
+            prefix = st.text_input("S3 Directory", value="")
             only_folder = st.toggle("Only Folder", value=True)
             full_path = st.toggle("Full Path", value=False)
 
@@ -95,14 +94,23 @@ with right:
                         "keys": clean_keys,
                     }
                 )
+                with st.expander("List Files"):
+                    for key in clean_keys:
+                        st.code(key, language="python")
+                if not full_path:
+                    st.session_state["base_path"] = prefix
+                else:
+                    st.session_state["base_path"] = f""
         with st.form("download"):
-            file_path = st.text_input("File Path", value="")
+            file_path = st.text_input(
+                "File Path", value=st.session_state.get("base_path", "")
+            )
             download = st.form_submit_button(
                 "Get For download", use_container_width=True
             )
 
             if download:
-                file_path = file_path.replace('"', "")
+                file_path = file_path.replace('"', "").replace("s3://", "")
                 check = st.session_state.s3.client.get_object(
                     Bucket=st.session_state.s3.bucket, Key=file_path
                 )
@@ -112,7 +120,7 @@ with right:
 
         if "chosen_file" in st.session_state and "chosen_data" in st.session_state:
             with st.container(border=True):
-                col1, col2 = st.columns(2)
+                col1, col2 = st.columns([7, 3])
                 with col1:
                     st.write(st.session_state.chosen_file)
                 with col2:
