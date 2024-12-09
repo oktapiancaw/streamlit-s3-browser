@@ -9,8 +9,6 @@ services:
 before_script:
   - echo $HARBOR_USERNAME
   - echo -n $HARBOR_PASSWORD | docker login $HARBOR_URL -u $HARBOR_USERNAME -p $HARBOR_PASSWORD
-  - docker version
-  - docker info
 
 build-job:
   stage: build
