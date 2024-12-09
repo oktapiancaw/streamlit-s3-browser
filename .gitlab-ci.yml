@@ -1,11 +1,3 @@
-image: docker:18-git
-
-
-variables:
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
-  DOCKER_HOST: tcp://docker:2375
-
 stages:          # List of stages for jobs, and their order of execution
   - build
   - deploy
@@ -19,6 +11,8 @@ before_script:
 
 build-job:
   stage: build
+  services:
+    - name: docker:dind
   script:
     - echo $HARBOR_HOST/$HARBOR_PROJECT/s3-browser
     - docker pull $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest || true
@@ -26,7 +20,8 @@ build-job:
 
 deploy-job:
   stage: deploy
-  environment: production
+  services:
+    - name: docker:dind
   script:
     - docker push $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest
     - echo "Application successfully deployed."
