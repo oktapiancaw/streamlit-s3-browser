@@ -4,7 +4,7 @@ stages:          # List of stages for jobs, and their order of execution
 
 services:
   - name: docker:dind
-    command: ["--insecure-registry=192.168.107.22"]
+    command: ["--insecure-registry=192.168.104.22"]
 
 before_script:
   - echo $HARBOR_USERNAME
@@ -15,15 +15,15 @@ before_script:
 build-job:
   stage: build
   script:
-    - docker pull $HARBOR_URL/$HARBOR_PROJECT:latest || true
-    - docker build --pull --cache-from $HARBOR_URL/$HARBOR_PROJECT:latest --tag $HARBOR_URL/$HARBOR_PROJECT:latest .
+    - docker pull $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest || true
+    - docker build --pull --cache-from $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest --tag $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest .
 
 deploy-job:
   stage: deploy
   environment: production
   script:
-    - docker push $HARBOR_URL/$HARBOR_PROJECT:latest
+    - docker push $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest
     - echo "Application successfully deployed."
 
 after_script:
-  - docker logout $HARBOR_URL
+  - docker logout $HARBOR_HOST
