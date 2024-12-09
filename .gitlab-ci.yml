@@ -1,0 +1,29 @@
+stages:          # List of stages for jobs, and their order of execution
+  - build
+  - deploy
+
+services:
+  - name: docker:dind
+    command: ["--insecure-registry=172.21.5.247:443"]
+
+before_script:
+  - echo $HARBOR_USERNAME
+  - echo -n $HARBOR_PASSWORD | docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_REGISTRY
+  - docker version
+  - docker info
+
+after_script:
+  - docker logout $HARBOR_REGISTRY
+
+build-job:
+  stage: build
+  script:
+    - docker pull $HARBOR_REGISTRY_IMAGE:latest || true
+    - docker build --pull --cache-from $HARBOR_REGISTRY_IMAGE:latest --tag $HARBOR_REGISTRY_IMAGE:latest .
+
+deploy-job:
+  stage: deploy
+  environment: production
+  script:
+    - docker push $HARBOR_REGISTRY_IMAGE:latest
+    - echo "Application successfully deployed."
