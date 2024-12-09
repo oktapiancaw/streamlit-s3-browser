@@ -4,7 +4,7 @@ image: docker:18-git
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
-  DOCKER_HOST: tcp://localhost:2375
+  DOCKER_HOST: tcp://docker:2375
 
 stages:          # List of stages for jobs, and their order of execution
   - build
@@ -12,7 +12,6 @@ stages:          # List of stages for jobs, and their order of execution
 
 services:
   - name: docker:dind
-    command: ["--insecure-registry=192.168.104.22"]
 
 before_script:
   - echo $HARBOR_USERNAME
