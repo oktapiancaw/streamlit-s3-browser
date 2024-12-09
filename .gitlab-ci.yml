@@ -1,13 +1,16 @@
+image: docker:latest
+
+services:
+  - name: docker:dind
+
 stages:
   - build
 
 build-job:
   stage: build
-  image: docker:latest
-  services:
-    - name: docker:dind
   before_script:
     - docker login $HARBOR_URL -u $HARBOR_USERNAME -p $HARBOR_PASSWORD
+    - export DOCKER_HOST="tcp://localhost:2375"
   script:
     - docker build --pull --tag $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest .
     - docker push $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest
