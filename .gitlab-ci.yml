@@ -1,6 +1,5 @@
-stages:          # List of stages for jobs, and their order of execution
+stages:
   - build
-  # - deploy
 
 build-job:
   stage: build
@@ -10,21 +9,9 @@ build-job:
   before_script:
     - docker login $HARBOR_URL -u $HARBOR_USERNAME -p $HARBOR_PASSWORD
   script:
-    # - echo $HARBOR_HOST/$HARBOR_PROJECT/s3-browser
-    # - docker pull $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest || true
-    - docker build --tag $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest .
+    - docker build --pull --tag $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest .
     - docker push $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest
     - echo "Application successfully deployed."
   after_script:
   - docker logout $HARBOR_HOST
-
-# deploy-job:
-#   stage: deploy
-#   image: docker:latest
-#   services:
-#     - name: docker:dind
-#   script:
-#     - docker push $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest
-#     - echo "Application successfully deployed."
-
 
