@@ -13,6 +13,7 @@ before_script:
 build-job:
   stage: build
   script:
+    - echo $HARBOR_HOST/$HARBOR_PROJECT/s3-browser
     - docker pull $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest || true
     - docker build --pull --cache-from $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest --tag $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest .
 
