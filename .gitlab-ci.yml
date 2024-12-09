@@ -8,7 +8,8 @@ services:
 
 before_script:
   - echo $HARBOR_USERNAME
-  - echo -n $HARBOR_PASSWORD | docker login -u $HARBOR_USERNAME -p $HARBOR_PASSWORD $HARBOR_REGISTRY
+  - echo $HARBOR_REGISTRY
+  - echo -n $HARBOR_PASSWORD | docker login $HARBOR_REGISTRY -u $HARBOR_USERNAME -p $HARBOR_PASSWORD
   - docker version
   - docker info
 
