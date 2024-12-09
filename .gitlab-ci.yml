@@ -4,7 +4,7 @@ stages:          # List of stages for jobs, and their order of execution
 
 services:
   - name: docker:dind
-    command: ["--insecure-registry=172.21.5.247:443"]
+    command: ["--insecure-registry=192.168.107.22"]
 
 before_script:
   - echo $HARBOR_USERNAME
