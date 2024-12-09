@@ -8,14 +8,9 @@ services:
 
 before_script:
   - echo $HARBOR_USERNAME
-  - echo $HARBOR_URL
-  - echo $HARBOR_PROJECT
   - echo -n $HARBOR_PASSWORD | docker login $HARBOR_URL -u $HARBOR_USERNAME -p $HARBOR_PASSWORD
   - docker version
   - docker info
-
-after_script:
-  - docker logout $HARBOR_URL
 
 build-job:
   stage: build
@@ -29,3 +24,6 @@ deploy-job:
   script:
     - docker push $HARBOR_URL/$HARBOR_PROJECT:latest
     - echo "Application successfully deployed."
+
+after_script:
+  - docker logout $HARBOR_URL
