@@ -15,8 +15,8 @@ build-job:
     - name: docker:dind
   script:
     - echo $HARBOR_HOST/$HARBOR_PROJECT/s3-browser
-    - docker pull $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest || true
-    - docker build --pull --cache-from $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest --tag $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest .
+    # - docker pull $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest || true
+    - docker build --tag $HARBOR_HOST/$HARBOR_PROJECT/s3-browser:latest .
 
 deploy-job:
   stage: deploy
