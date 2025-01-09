@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "s3-browser"
-version = "0.2.0"
+version = "0.2.1"
 description = "Solution for S3 Browser"
 authors = ["oktapian <oktapian@jkt1.ebdesk.com>"]
 readme = "README.md"
@@ -10,17 +10,16 @@ python = "3.10.12"
 streamlit = "^1.38.0"
 boto3 = "^1.35.12"
 duckdb = "^1.0.0"
-module-typica = {version = "^0.1.14", source = "ebdesk"}
 pydantic = "^2.9.0"
 pydantic-settings = "^2.4.0"
+module-typica = "^0.2.5"
 
+loguru = "^0.7.3"
+pmongo = "^1.0.16"
+tomli = "^2.2.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[[tool.poetry.source]]
-name = "PyPI"
-priority = "primary"
 
 [[tool.poetry.source]]
 name = "ebdesk"
