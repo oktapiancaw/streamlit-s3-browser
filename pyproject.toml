@@ -4,6 +4,7 @@ version = "0.2.1"
 description = "Solution for S3 Browser"
 authors = ["oktapian <oktapian@jkt1.ebdesk.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "3.10.12"
@@ -17,11 +18,7 @@ module-typica = "^0.2.5"
 loguru = "^0.7.3"
 pmongo = "^1.0.16"
 tomli = "^2.2.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[[tool.poetry.source]]
-name = "ebdesk"
-url = "http://192.168.20.127:6060/simple/"
-priority = "supplemental"
