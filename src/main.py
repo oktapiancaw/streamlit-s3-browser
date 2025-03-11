@@ -22,7 +22,7 @@ if config.CONNECT_DE_STORAGE:
     try:
         list_connection = {}
         with mongo.stream_connect() as client:
-            list_connection_raw = client.db["connections_v2"].find(
+            list_connection_raw = client.db[config.CONNECT_DE_COLLECTION or ""].find(
                 {"connection_type": "s3http"}, {"name": 1, "access": 1}
             )
 

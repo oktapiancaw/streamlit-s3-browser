@@ -19,6 +19,7 @@ class ApplicationConfig(BaseSettings):
     CONNECT_DE_STORAGE: Optional[bool] = False
     CONNECT_DE_URL: Optional[str] = None
     CONNECT_DE_DATABASE: Optional[str] = None
+    CONNECT_DE_COLLECTION: Optional[str] = None
 
 
 class ProjectConfig(BaseSettings):
