@@ -171,7 +171,6 @@ cython_debug/
 public/slide/*
 source/public/slide/*
 # End of https://www.toptal.com/developers/gitignore/api/python
-docker-compose.yml
 .deploy.sh
 .build.sh
 build.env
