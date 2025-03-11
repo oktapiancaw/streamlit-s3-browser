@@ -1,0 +1,21 @@
+version: '3'
+vars:
+  COMMIT_TOML: 'docs: :bookmark: change toml version to '
+  COMMIT_CHANGELOG: 'feat: :memo: Add changelog entry for '
+tasks:
+  release:
+    desc: 'Release and push new version'
+    vars:
+      VERSION: '{{.VERSION | default "latest"}}'
+    cmds:
+      - echo "Change version to {{.VERSION}}"
+      - sed -i "s/version = .*/version = \"{{.VERSION}}\"/" pyproject.toml
+      - git add pyproject.toml
+      - git commit -m  "{{.COMMIT_TOML}}{{.VERSION}}"
+      - echo "Generate Change log"
+      - git cliff --tag {{.VERSION}} --output CHANGELOG.md
+      - git add CHANGELOG.md
+      - git commit -m  "{{.COMMIT_CHANGELOG}}{{.VERSION}}"
+      - git tag -a "v{{.VERSION}}" -m "Release version {{.VERSION}}"
+      - git push origin master
+      - git push origin v{{.VERSION}}

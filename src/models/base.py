@@ -1,18 +1,18 @@
 import re
 
-from typica import HostMeta, Optional, Field, model_validator
+from typica import EndpointMeta, Optional, Field, model_validator
 
 
-class S3ConnectionMeta(HostMeta):
-    endpoint_uri: Optional[str] = Field(default=None)
+class S3ConnectionMeta(EndpointMeta):
+    endpoint_url: Optional[str] = Field(default=None)
     access_key: str
     secret_key: str
     bucket: str
 
     @model_validator(mode="after")
     def extract_uri(self):
-        if self.endpoint_uri:
-            uri = re.sub(r"\w+:(//|/)", "", self.endpoint_uri)
+        if self.endpoint_url:
+            uri = re.sub(r"\w+:(//|/)", "", self.endpoint_url)
             metadata, _ = (
                 re.split(r"\/\?|\/", uri) if re.search(r"\/\?|\/", uri) else [uri, None]
             )
@@ -22,5 +22,6 @@ class S3ConnectionMeta(HostMeta):
                 )
             else:
                 self.host, self.port = re.split(r"\:", metadata)
-            self.port = int(self.port)
+            if self.port:
+                self.port = int(self.port)
         return self

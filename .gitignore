@@ -10,7 +10,6 @@ __pycache__/
 # C extensions
 *.so
 data/
-public/
 # Distribution / packaging
 .Python
 build/
@@ -168,8 +167,7 @@ cython_debug/
 .vscode/*
 !.vscode/*.code-snippets
 .idea
-public/slide/*
-source/public/slide/*
 # End of https://www.toptal.com/developers/gitignore/api/python
-docker-compose.yml
 .deploy.sh
+.build.sh
+build.env

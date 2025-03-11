@@ -1,0 +1,13 @@
+services:
+  public:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: s3-browser-local
+    ports:
+      - 8021:8501
+    labels:
+      - dev.dozzle.name=s3-browser-local
+    env_file:
+      - .env
+    network_mode: bridge
