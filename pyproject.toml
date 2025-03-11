@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "s3-browser"
-version = "0.2.2"
+version = "0.2.3"
 description = "Solution for S3 Browser"
 authors = ["oktapian <oktapian@jkt1.ebdesk.com>"]
 readme = "README.md"
