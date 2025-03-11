@@ -2,7 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3] - 2025-03-11
+
+### 🚀 Features
+
+- :art: add collection on env
+
+### 📚 Documentation
+
+- :bookmark: change toml version to 0.2.3
+
+### ⚙️ Miscellaneous Tasks
+
+- :construction_worker: update docker and docker-compose
+- :memo: Add Readme and taskfile
+
 ## [0.2.2] - 2025-02-05
+
+### 🚀 Features
+
+- :memo: Add changelog entry for 0.2.2
 
 ### 📚 Documentation
 
