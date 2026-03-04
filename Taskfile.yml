@@ -4,8 +4,8 @@ vars:
   COMMIT_TOML: "docs: :bookmark: change toml version to "
   COMMIT_CHANGELOG: "feat: :memo: Add changelog entry for "
 
-  IMAGE_NAME: "cli-helpers-postgre"
-  REGISTRY_URL: "registry.blackeye.id/de-tools"
+  IMAGE_NAME: "s3-browser"
+  REGISTRY_URL: "ghcr.io/oktapiancaw"
 
 tasks:
   build:
