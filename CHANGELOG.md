@@ -2,11 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-03-04
+
+### 🚜 Refactor
+
+- Implement OpenDAL, Restructure view
+
+### 📚 Documentation
+
+- Change registry
+- :bookmark: change toml version to 1.0.1
+
+### ⚙️ Miscellaneous Tasks
+
+- Add image
+
 ## [0.2.3] - 2025-03-11
 
 ### 🚀 Features
 
 - :art: add collection on env
+- :memo: Add changelog entry for 0.2.3
 
 ### 📚 Documentation
 
