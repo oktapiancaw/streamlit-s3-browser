@@ -1,82 +1,77 @@
-from contextlib import contextmanager
+import logging
 
-from loguru import logger
 from pymongo import MongoClient
+from pymongo.database import Database
 from pymongo.errors import ExecutionTimeout, NetworkTimeout
-
-from configs import config
 from typica import DBConnectionMeta
+
+from src.configs import CustomLogLevel
+
+LOGGER = logging.getLogger(__name__)
 
 
 class MongoConnector:
+    _meta: DBConnectionMeta
+    _client: MongoClient
+    _db: Database
+
     def __init__(self, meta: DBConnectionMeta) -> None:
         """
-        Initialize a new instance of MongoConnector.
+        Initialize the Mongo connector with the given connection metadata.
 
-        Args:
-            meta (DBConnectionMeta): A DBConnectionMeta instance containing the database connection details.
-
-        The `uri` attribute of the `meta` object will be set to the connection URI
-        string using the `uri_string` method of the `DBConnectionMeta` instance.
-        The `client` attribute is set to None.
+        :param meta: The metadata of the database connection.
+        :type meta: DBConnectionMeta
         """
-
-        self._meta: DBConnectionMeta = meta
+        self._meta = meta
         if not self._meta.uri:
             self._meta.uri = self._meta.uri_string(base="mongodb", with_db=False)
 
-        self.client: MongoClient | None = None
-
-    @contextmanager
-    def stream_connect(self, **kwargs):
+    def __enter__(self):
         """
-        Context manager to connect to the mongo database as a stream.
+        Connect to the MongoDB server and return the connection object.
 
-        Connect to the mongo database, yield the connection, and then close the connection.
-        Any keyword arguments will be passed to the MongoClient constructor.
-
-        See the MongoClient documentation for available keyword arguments.
+        :return: The connection object.
+        :rtype: MongoConnector
+        :raises ValueError: If the connection to the MongoDB server fails.
         """
+        self.connect()
+        if self._client is None:
+            raise ValueError("Mongo not connected.")
+        return self
 
-        self.connect(**kwargs)
-        yield self
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """
+        Close the connection to the MongoDB server.
+
+        This method is called when the context manager exits its scope.
+        """
         self.close()
 
-    def connect(self, **kwargs):
+    def connect(self, **kwargs) -> None:
         """
-        Connect to the mongo database.
+        Establish a connection to the MongoDB server.
 
-        Connect to the mongo database and set the default database using the
-        database name specified in the meta object.
-
-        Any keyword arguments will be passed to the MongoClient constructor.
-
-        See the MongoClient documentation for available keyword arguments.
+        :param kwargs: Additional keyword arguments for MongoClient.
+        :raises ValueError: If the connection to the MongoDB server fails.
+        :raises Exception: If any other error occurs during the connection.
         """
 
         try:
-            if not self._meta.uri:
-                raise ValueError("Mongo URI is not set")
-            if not self._meta.database:
-                raise ValueError("Mongo database is not set")
-            self.client = MongoClient(self._meta.uri, **kwargs)
-            self.db = self.client[str(self._meta.database)]
-            logger.success("Mongo is connected")
-        except (NetworkTimeout, ExecutionTimeout):
-            logger.exception("Connecting timeout")
-            raise
-        except Exception:
-            logger.exception("Something went wrong while connecting to mongo")
-            raise
+            self._client = MongoClient(self._meta.uri, **kwargs)
+            self._db = self._client[str(self._meta.database)]
+            LOGGER.log(CustomLogLevel.CONNECTION, "Mongo connected.")
+        except (NetworkTimeout, ExecutionTimeout) as e:
+            raise ValueError(f"Mongo connection timed out. cause {e}")
+        except Exception as e:
+            raise e
 
-    def close(self):
+    def close(self) -> None:
         """
-        Close the mongo database connection.
+        Close the connection to the MongoDB server.
 
-        Close the mongo database connection and log a message indicating
-        that the connection has been closed.
+        This method is a no-op if the connection is already closed.
         """
+        if hasattr(self, "_client") and self._client:
+            self._client.close()
 
-        if self.client:
-            self.client.close()
-        logger.success("Mongo is closed")
+        LOGGER.log(CustomLogLevel.CONNECTION, "Mongo disconnected.")

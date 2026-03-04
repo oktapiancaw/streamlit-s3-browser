@@ -1,10 +1,10 @@
-from typing import Optional, Tuple, Type
+from typing import Optional
 
 from pydantic_settings import (
     BaseSettings,
-    SettingsConfigDict,
-    PyprojectTomlConfigSettingsSource,
     PydanticBaseSettingsSource,
+    PyprojectTomlConfigSettingsSource,
+    SettingsConfigDict,
 )
 
 
@@ -23,25 +23,24 @@ class ApplicationConfig(BaseSettings):
 
 
 class ProjectConfig(BaseSettings):
-
     name: str
     version: str = "0.1.0"
     description: str = ""
-    authors: list[str] = []
+    authors: list[dict] = []
 
     @classmethod
     def settings_customise_sources(
         cls,
-        settings_cls: Type[BaseSettings],
+        settings_cls: type[BaseSettings],
         init_settings: PydanticBaseSettingsSource,
         env_settings: PydanticBaseSettingsSource,
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
-    ) -> Tuple[PydanticBaseSettingsSource, ...]:
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
         return (PyprojectTomlConfigSettingsSource(settings_cls),)
 
     model_config = SettingsConfigDict(
-        pyproject_toml_table_header=("tool", "poetry"), extra="ignore"
+        pyproject_toml_table_header=("project",), extra="ignore"
     )
 
     @property

@@ -1,61 +1,56 @@
 # ===
-# ? Pyhton base
+# 🐍 Python base image
 # ===
-FROM python:3.10.12-slim AS python-base
+FROM python:3.10.12-slim-bookworm AS base
 
+# Set common environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VERSION=1.8.3 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    POETRY_NO_INTERACTION=1 \
-    PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv"
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    VENV_PATH="/app/.venv"
 
-
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
-
-# ===
-# ? Builder-base
-# ===
-
-FROM python-base AS builder-base
-
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-    curl \
-    build-essential
-
-RUN --mount=type=cache,target=/root/.cache \
-    curl -sSL https://install.python-poetry.org | python3 -
-
-WORKDIR $PYSETUP_PATH
-COPY poetry.lock pyproject.toml ./
-
-RUN --mount=type=cache,target=/root/.cache \
-    poetry install
-
-
-# ===
-# ? development
-# ===
-FROM python-base AS development
-ENV FASTAPI_ENV=dev
-
-WORKDIR $PYSETUP_PATH
-
-COPY --from=builder-base $POETRY_HOME $POETRY_HOME
-COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
-
-# will become mountpoint of our code
+# Create working directory
 WORKDIR /app
 
+
+# ===
+# 🔧 Builder stage
+# ===
+FROM base AS builder
+
+# Install `uv` (copy statically linked binary)
+COPY --from=ghcr.io/astral-sh/uv:0.7.4 /uv /bin/uv
+
+# Copy only lock + manifest first (for layer caching)
+COPY uv.lock pyproject.toml ./
+
+# Install dependencies without project code
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev
+
+# Copy full source
 COPY . .
 
-RUN --mount=type=cache,target=/root/.cache \
-    poetry install
+# Install again with project (excluding dev deps)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
+
+
+# ===
+# 🚀 Runtime / Development stage
+# ===
+FROM base AS development
+
+COPY --from=ghcr.io/astral-sh/uv:0.7.4 /uv /bin/uv
+# Copy pre-built app with dependencies and virtualenv
+COPY --from=builder /app /app
+
+# Activate virtual environment
+ENV PATH="${VENV_PATH}/bin:$PATH"
+
+# Optionally set working directory to /app
+WORKDIR /app
+
 
 ENTRYPOINT [ "streamlit", "run", "/app/src/main.py" , "--browser.gatherUsageStats", "false"]

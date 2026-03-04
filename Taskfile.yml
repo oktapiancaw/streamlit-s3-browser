@@ -1,21 +1,95 @@
-version: '3'
+version: "3"
+
 vars:
-  COMMIT_TOML: 'docs: :bookmark: change toml version to '
-  COMMIT_CHANGELOG: 'feat: :memo: Add changelog entry for '
+  COMMIT_TOML: "docs: :bookmark: change toml version to "
+  COMMIT_CHANGELOG: "feat: :memo: Add changelog entry for "
+
+  IMAGE_NAME: "cli-helpers-postgre"
+  REGISTRY_URL: "registry.blackeye.id/de-tools"
+
 tasks:
-  release:
-    desc: 'Release and push new version'
+  build:
+    desc: "Build docker image"
     vars:
+      # Default to 'latest' if no VERSION is provided
       VERSION: '{{.VERSION | default "latest"}}'
     cmds:
-      - echo "Change version to {{.VERSION}}"
+      - echo "Building Docker image {{.IMAGE_NAME}}:{{.VERSION}}..."
+      - docker build -t {{.IMAGE_NAME}}:{{.VERSION}} .
+      - echo "Image {{.IMAGE_NAME}}:{{.VERSION}} built."
+
+  release:
+    desc: "Create and push a new git release tag"
+    vars:
+      VERSION: "{{.VERSION}}"
+    preconditions:
+      - {
+          sh: "test -n '{{.VERSION}}'",
+          msg: "VERSION is required. e.g., task release VERSION=1.2.3",
+        }
+    cmds:
+      # This still updates pyproject.toml for version tracking.
+      # You can change this to any other file where you store the version.
+      - echo "Changing version in pyproject.toml to {{.VERSION}}..."
       - sed -i "s/version = .*/version = \"{{.VERSION}}\"/" pyproject.toml
       - git add pyproject.toml
-      - git commit -m  "{{.COMMIT_TOML}}{{.VERSION}}"
-      - echo "Generate Change log"
+      - git commit -m "{{.COMMIT_TOML}}{{.VERSION}}"
+
+      - echo "Generating changelog for v{{.VERSION}}..."
       - git cliff --tag {{.VERSION}} --output CHANGELOG.md
       - git add CHANGELOG.md
-      - git commit -m  "{{.COMMIT_CHANGELOG}}{{.VERSION}}"
+      - git commit -m "{{.COMMIT_CHANGELOG}}{{.VERSION}}"
+
+      - echo "Creating git tag v{{.VERSION}}..."
       - git tag -a "v{{.VERSION}}" -m "Release version {{.VERSION}}"
+
+      - echo "Pushing commits and tag to origin master..."
       - git push origin master
       - git push origin v{{.VERSION}}
+      - echo "Release v{{.VERSION}} pushed."
+
+  publish:
+    desc: "Build and publish docker image to registry"
+    vars:
+      VERSION: "{{.VERSION}}"
+    preconditions:
+      # A specific version is required to publish
+      - {
+          sh: "test -n '{{.VERSION}}'",
+          msg: "VERSION is required. e.g., task publish VERSION=1.2.3",
+        }
+    deps:
+      # # Ensure tests pass before publishing
+      # - test
+      - task: build
+        vars:
+          VERSION: "{{.VERSION}}"
+    cmds:
+      - echo "Tagging image for registry {{.REGISTRY_URL}}..."
+      - docker tag {{.IMAGE_NAME}}:{{.VERSION}} {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:{{.VERSION}}
+      - docker tag {{.IMAGE_NAME}}:{{.VERSION}} {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:latest
+      
+      - echo "Pushing images to registry..."
+      - docker push {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:{{.VERSION}}
+      - docker push {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:latest
+      - echo "Images {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:{{.VERSION}} and {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:latest published."
+      
+  publish-nobuild:
+    desc: "Publish existing Docker image without rebuilding"
+    vars:
+      VERSION: "{{.VERSION}}"
+    preconditions:
+      # A specific version is required to publish
+      - {
+          sh: "test -n '{{.VERSION}}'",
+          msg: "VERSION is required. e.g., task publish-nobuild VERSION=1.2.3",
+        }
+    cmds:
+      - echo "Tagging image for registry {{.REGISTRY_URL}}..."
+      - docker tag {{.IMAGE_NAME}}:{{.VERSION}} {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:{{.VERSION}}
+      - docker tag {{.IMAGE_NAME}}:{{.VERSION}} {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:latest
+
+      - echo "Pushing images to registry..."
+      - docker push {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:{{.VERSION}}
+      - docker push {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:latest
+      - echo "Images {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:{{.VERSION}} and {{.REGISTRY_URL}}/{{.IMAGE_NAME}}:latest published."
