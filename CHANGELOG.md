@@ -2,7 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2026-03-05
+
+### 🚀 Features
+
+- Download each file
+
+### 📚 Documentation
+
+- :bookmark: change toml version to 1.0.2
+
 ## [1.0.1] - 2026-03-04
+
+### 🚀 Features
+
+- :memo: Add changelog entry for 1.0.1
 
 ### 🚜 Refactor
 
