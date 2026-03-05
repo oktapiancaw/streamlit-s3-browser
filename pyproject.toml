@@ -1,6 +1,6 @@
 [project]
 name = "s3-browser"
-version = "1.0.1"
+version = "1.0.2"
 description = "Solution for S3 Browser"
 readme = "README.md"
 authors = [{"name" = "Oktapian Candra"}]
