@@ -43,9 +43,9 @@ tasks:
       - echo "Creating git tag v{{.VERSION}}..."
       - git tag -a "v{{.VERSION}}" -m "Release version {{.VERSION}}"
 
-      - echo "Pushing commits and tag to origin master..."
-      - git push origin master
-      - git push origin v{{.VERSION}}
+      - echo "Pushing commits and tag to public master..."
+      - git push public master
+      - git push public v{{.VERSION}}
       - echo "Release v{{.VERSION}} pushed."
 
   publish:

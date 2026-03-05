@@ -263,13 +263,23 @@ with right:
                         file_start_idx:file_end_idx
                     ]:
                         st.code(values.get("Key"), language="python")
-                        metaDate, metaSize, metaType = st.columns(3)
+                        metaDate, metaSize, metaDownload = st.columns([6, 2, 2])
                         with metaDate:
                             st.write(values.get("LastModified"))
                         with metaSize:
                             st.write(round(values.get("Size") / 1024, 2), "KB")
-                        with metaType:
-                            st.write(values.get("ContentType"))
+                        with metaDownload:
+                            st.download_button(
+                                label="Download",
+                                data=run_async(
+                                    st.session_state.s3.read_file(
+                                        path=values.get("Key")
+                                    )
+                                ),
+                                file_name=values.get("Key").split("/")[-1],
+                                mime="application/octet-stream",
+                                use_container_width=True,
+                            )
                     st.write(
                         f"Total File: {len(st.session_state.file_result[file_start_idx:file_end_idx])} from {len(st.session_state.file_result)}"
                     )
